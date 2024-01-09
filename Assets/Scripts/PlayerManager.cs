@@ -17,14 +17,19 @@ public class PlayerManager : MonoBehaviour
     Vector2 minBounds;
     Vector3 maxBounds;
 
+    Shooter shooter;
+
+    PlayerInput playerInput;
+
+    void Awake()
+    {
+        shooter = GetComponent<Shooter>();
+    }
+
     void Start()
     {
         InitBounds();
-    }
-
-    void Update()
-    {
-        
+        playerInput = GetComponent<PlayerInput>();
     }
 
     void InitBounds()
@@ -32,6 +37,11 @@ public class PlayerManager : MonoBehaviour
         Camera mainCamera = Camera.main;
         minBounds = mainCamera.ViewportToWorldPoint(new Vector2(0f, 0f));
         maxBounds = mainCamera.ViewportToWorldPoint(new Vector2(1f, 1f));
+    }
+
+    void Update()
+    {
+        Fire();
     }
 
     void FixedUpdate()
@@ -51,6 +61,18 @@ public class PlayerManager : MonoBehaviour
     void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
+    }
+
+    void Fire()
+    {
+        if(playerInput.actions["fire"].IsPressed())
+        {
+            shooter.StartFiring();
+        }
+        else
+        {
+            shooter.StopFiring();
+        }
     }
 
 }
