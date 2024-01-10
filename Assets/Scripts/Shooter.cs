@@ -7,11 +7,20 @@ public class Shooter : MonoBehaviour
 	[SerializeField] GameObject projectilePrefab;
 	[SerializeField] float projectileSpeed = 10f;
 	[SerializeField] float projectileLifetime = 5f;
-	[SerializeField] float firingRate = 0.2f;
+
+	[SerializeField] float baseFiringRate = 0.2f;
+    [SerializeField] float firingRateVariance = 0.5f;
+    [SerializeField] float minimumFiringRate = 0.1f;
 
 	bool isFiring;
 
 	Coroutine firingCoroutine;
+    AudioPlayer audioPlayer;
+
+    void Awake()
+    {
+        audioPlayer = FindObjectOfType<AudioPlayer>();
+    }
 
     public bool GetIsFiring()
     {
@@ -51,8 +60,8 @@ public class Shooter : MonoBehaviour
     	while(true)
     	{
     		GameObject instance = Instantiate(projectilePrefab,
-    										 transform.position,
-    										 Quaternion.identity);
+    										  transform.position,
+    										  Quaternion.identity);
 
     		Rigidbody2D myRigidbody = instance.GetComponent<Rigidbody2D>();
     		if(myRigidbody != null)
@@ -61,7 +70,14 @@ public class Shooter : MonoBehaviour
     		}
 
     		Destroy(instance, projectileLifetime);
-    		yield return new WaitForSeconds(firingRate);
+
+            float timeToNextProjectile = Random.Range(baseFiringRate - firingRateVariance,
+                                                      baseFiringRate + firingRateVariance);
+            timeToNextProjectile = Mathf.Clamp(timeToNextProjectile, minimumFiringRate, float.MaxValue);
+
+            audioPlayer.PlayShootingClip();
+
+    		yield return new WaitForSeconds(timeToNextProjectile);
     	}
     }
 }
